@@ -5,12 +5,12 @@ class SubjectTable:
     __scripts = {
         "select": text("SELECT * FROM subject"),
         "insert_new": text(
-            "INSERT INTO subject(\"subject_title\")"
+            "INSERT INTO subject(\"subject_title\") "
             "VALUES(:new_title)"
         ),
         "update": text(
-            "UPDATE subject"
-            "SET subject_title = :new_title"
+            "UPDATE subject "
+            "SET subject_title = :new_title "
             "WHERE subject_title = :title"
         ),
         "delete": text("DELETE FROM subject WHERE subject_title = :title")
@@ -32,7 +32,7 @@ class SubjectTable:
         result = connection.execute(
             self.__scripts["insert_new"],
             {"new_title": title}
-            )
+        )
         transaction.commit()
         connection.close()
         return result
@@ -50,7 +50,9 @@ class SubjectTable:
     def delete(self, title):
         connection = self.__db.connect()
         transaction = connection.begin()
-        connection.execute(self.__scripts["delete"], {"title": title})
-
+        connection.execute(
+            self.__scripts["delete"],
+            {"title": title}
+        )
         transaction.commit()
         connection.close()

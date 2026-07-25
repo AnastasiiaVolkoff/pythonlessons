@@ -1,7 +1,10 @@
 from sqlalchemy import create_engine, text
 
-db_connection_string = "postgresql://postgres:millsqueen@localhost/QA"
-db = create_engine(db_connection_string)
+
+DB_CONNECTION_STRING = (
+    "postgresql://postgres:millsqueen@localhost/QA"
+)
+db = create_engine(DB_CONNECTION_STRING)
 
 
 def test_select():
@@ -12,14 +15,17 @@ def test_select():
 
     assert row1['subject_id'] == 1
     assert row1['subject_title'] == "English"
+    connection.close()
 
 
 def test_insert():
     connection = db.connect()
     transaction = connection.begin()
-    sql = text("insert into subject(\"subject_title\") values (:new_title)")
-    new_id = connection.execute(sql, {"new_title": 'Предмет для тестирования'})
-    assert new_id is not None
+
+    sql = text(
+        "INSERT INTO subject(\"subject_title\") VALUES (:new_title)"
+    )
+    connection.execute(sql, {"new_title": 'Предмет для тестирования'})
 
     result = connection.execute(
         text("SELECT * FROM subject WHERE subject_title = :title"),
@@ -28,8 +34,8 @@ def test_insert():
     rows = result.mappings().all()
     assert len(rows) == 1
 
-    sql = text("DELETE FROM subject WHERE subject_title = :title")
-    connection.execute(sql, {"title": 'Предмет для тестирования'})
+    sql_delete = text("DELETE FROM subject WHERE subject_title = :title")
+    connection.execute(sql_delete, {"title": 'Предмет для тестирования'})
 
     transaction.commit()
     connection.close()
@@ -38,24 +44,28 @@ def test_insert():
 def test_update():
     connection = db.connect()
     transaction = connection.begin()
-    sql = text("insert into subject(\"subject_title\") values (:new_title)")
-    new_id = connection.execute(sql, {"new_title": 'Новый предмет'})
-    assert new_id is not None
 
-    sql = text(
+    sql_insert = text(
+        "INSERT INTO subject(\"subject_title\") VALUES (:new_title)"
+    )
+    connection.execute(sql_insert, {"new_title": 'Новый предмет'})
+
+    sql_update = text(
         "UPDATE subject "
         "SET subject_title = 'updated' "
         "WHERE subject_title = :title"
     )
-    connection.execute(sql, {"title": 'Новый предмет'})
+    connection.execute(sql_update, {"title": 'Новый предмет'})
+
     result = connection.execute(
         text("SELECT * FROM subject WHERE subject_title = :title"),
         {"title": "updated"}
     )
     rows = result.mappings().all()
     assert len(rows) == 1
-    sql = text("DELETE FROM subject WHERE subject_title = :title")
-    connection.execute(sql, {"title": 'updated'})
+
+    sql_delete = text("DELETE FROM subject WHERE subject_title = :title")
+    connection.execute(sql_delete, {"title": 'updated'})
 
     transaction.commit()
     connection.close()
@@ -64,9 +74,11 @@ def test_update():
 def test_delete():
     connection = db.connect()
     transaction = connection.begin()
-    sql = text("insert into subject(\"subject_title\") values (:new_title)")
-    new_id = connection.execute(sql, {"new_title": 'Предмет для удаления'})
-    assert new_id is not None
+
+    sql_insert = text(
+        "INSERT INTO subject(\"subject_title\") VALUES (:new_title)"
+    )
+    connection.execute(sql_insert, {"new_title": 'Предмет для удаления'})
 
     result = connection.execute(
         text("SELECT * FROM subject WHERE subject_title = :title"),
@@ -74,8 +86,9 @@ def test_delete():
     )
     rows = result.mappings().all()
     assert len(rows) == 1
-    sql = text("DELETE FROM subject WHERE subject_title = :title")
-    connection.execute(sql, {"title": 'Предмет для удаления'})
+
+    sql_delete = text("DELETE FROM subject WHERE subject_title = :title")
+    connection.execute(sql_delete, {"title": 'Предмет для удаления'})
 
     transaction.commit()
     connection.close()
