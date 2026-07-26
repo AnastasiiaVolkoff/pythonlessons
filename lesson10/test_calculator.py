@@ -1,6 +1,7 @@
 """
 Тесты для калькулятора с использованием Page Object и Allure.
 """
+import time
 import allure
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -38,14 +39,15 @@ def test_calculator():
     try:
         with allure.step("Открытие страницы калькулятора и настройка задержки"):
             calc_page = CalculatorPage(driver)
-            calc_page.open() \
-                    .set_delay(45)
+            calc_page.open().set_delay(45)
+            time.sleep(1)  # небольшая пауза
 
         with allure.step("Ввод выражения 7 + 8 ="):
             calc_page.click_button("7") \
                     .click_button("+") \
                     .click_button("8") \
                     .click_button("=")
+            time.sleep(1)  # пауза перед проверкой
 
         with allure.step("Ожидание и проверка результата"):
             result = calc_page.get_result("15", timeout=50)
